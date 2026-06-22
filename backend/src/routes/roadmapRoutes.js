@@ -4,6 +4,8 @@ const authMiddleware = require("../middleware/authMiddleware");
 const Roadmap = require("../models/Roadmap");
 
 const router = express.Router();
+console.log("GEMINI KEY EXISTS:", !!process.env.GEMINI_API_KEY);
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Generate Roadmap
@@ -12,7 +14,7 @@ router.post("/generate", authMiddleware, async (req, res) => {
     const { goal, level, duration } = req.body;
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: "Gemini 3.1 Flash Lite"
     });
 
     const prompt = `
