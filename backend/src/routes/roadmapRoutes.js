@@ -57,14 +57,14 @@ Progress must increase month by month and last phase must be 100.
 Keep explanations very brief.
 `;
 
-    // Groq API Call - Super fast & structural JSON mode
+    vaScript
+    // 🌟 UPDATED GROQ MODEL: Llama 3.3 use kar rahe hain jo decommission nahi hoga
     const chatCompletion = await groq.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
-      model: "llama3-8b-8192", 
+      model: "llama-3.3-70b-versatile", // 👈 Bas ye naam badal diya
       response_format: { type: "json_object" }, 
       temperature: 0.2,
     });
-
     let roadmapText = chatCompletion.choices[0].message.content.trim();
 
     let parsedRoadmapData;
