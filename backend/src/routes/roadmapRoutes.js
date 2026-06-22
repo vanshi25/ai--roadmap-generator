@@ -18,14 +18,14 @@ router.post("/generate", authMiddleware, async (req, res) => {
 
     // 🌟 FLASH MODEL WAPAS: Isme quota error nahi aayega, limit bohot high hai
    // 🌟 Stable SDK production name mapping
+// 🌟 Absolute Safe Model mapped for legacy API compliance
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash", 
+  model: "gemini-pro",
   generationConfig: {
     responseMimeType: "application/json",
     maxOutputTokens: 8192 
   }
 });
-
     const prompt = `
 You are an expert career mentor and roadmap planner.
 Create a highly professional roadmap in VALID JSON ONLY.
