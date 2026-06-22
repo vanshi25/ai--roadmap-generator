@@ -1,5 +1,5 @@
 const express = require("express");
-const { OpenAI } = require("openai"); // OpenRouter ke liye OpenAI SDK hi chalega
+const { OpenAI } = require("openai"); // OpenRouter ke liye OpenAI SDK bilkul sahi hai
 const authMiddleware = require("../middleware/authMiddleware");
 const Roadmap = require("../models/Roadmap");
 
@@ -60,9 +60,9 @@ Progress must increase month by month and last phase must be 100.
 Keep explanations very brief.
 `;
 
-    // 🌟 SWITCHED TO GEMINI FREE MODEL
+    // 🌟 SWITCHED TO THE FREE MODEL FROM YOUR SCREENSHOT
     const response = await openai.chat.completions.create({
-      model: "google/gemini-2.5-flash:free", // 👈 Gemini ka solid free model
+      model: "cohere/north-mini-code:free", // 👈 Screenshot wala free coding model
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" }, 
       temperature: 0.2,
@@ -74,7 +74,7 @@ Keep explanations very brief.
     try {
       parsedRoadmapData = JSON.parse(roadmapText);
     } catch (parseError) {
-      console.error("JSON Parsing Error from Gemini Response:", roadmapText);
+      console.error("JSON Parsing Error from Cohere Response:", roadmapText);
       return res.status(500).json({
         success: false,
         message: "Failed to parse AI response into structural layout.",
