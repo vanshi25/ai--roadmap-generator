@@ -1,14 +1,14 @@
 const express = require("express");
-const { OpenAI } = require("openai"); // 🌟 OpenAI SDK use kar rahe hain OpenRouter ke liye
+const { OpenAI } = require("openai"); // OpenRouter ke liye OpenAI SDK hi chalega
 const authMiddleware = require("../middleware/authMiddleware");
 const Roadmap = require("../models/Roadmap");
 
 const router = express.Router();
 
-// 🌟 OpenRouter Configuration using OpenAI SDK
+// 🌟 OpenRouter Configuration
 const openai = new OpenAI({
-  apiKey: process.env.OPENROUTER_API_KEY, // Render aur .env se key uthayega
-  baseURL: "https://openrouter.ai/api/v1", // OpenRouter ka correct endpoint URL
+  apiKey: process.env.OPENROUTER_API_KEY, 
+  baseURL: "https://openrouter.ai/api/v1", 
 });
 
 // ==========================================
@@ -60,9 +60,9 @@ Progress must increase month by month and last phase must be 100.
 Keep explanations very brief.
 `;
 
-    // 🌟 ACTIVE & FREE MODEL: Llama 3.3 70B Instruct Free
+    // 🌟 SWITCHED TO GEMINI FREE MODEL
     const response = await openai.chat.completions.create({
-      model: "meta-llama/llama-3.3-70b-instruct:free", 
+      model: "google/gemini-2.5-flash:free", // 👈 Gemini ka solid free model
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" }, 
       temperature: 0.2,
@@ -74,7 +74,7 @@ Keep explanations very brief.
     try {
       parsedRoadmapData = JSON.parse(roadmapText);
     } catch (parseError) {
-      console.error("JSON Parsing Error from OpenRouter Response:", roadmapText);
+      console.error("JSON Parsing Error from Gemini Response:", roadmapText);
       return res.status(500).json({
         success: false,
         message: "Failed to parse AI response into structural layout.",
