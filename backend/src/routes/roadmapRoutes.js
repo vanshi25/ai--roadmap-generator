@@ -17,13 +17,14 @@ router.post("/generate", authMiddleware, async (req, res) => {
     const { goal, level, duration } = req.body;
 
     // 🌟 STABLE CONFIG: 1.5-flash standard string format for high quota & JSON support
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash", 
-      generationConfig: {
-        responseMimeType: "application/json",
-        maxOutputTokens: 8192 
-      }
-    });
+    // 🌟 Yeh model Gemini ka sabse stable 'v1beta' compliant model hai
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-pro", // Flash hata kar 'gemini-1.5-pro' kar do
+  generationConfig: {
+    responseMimeType: "application/json",
+    maxOutputTokens: 8192 
+  }
+});
 
     const prompt = `
 You are an expert career mentor and roadmap planner.
