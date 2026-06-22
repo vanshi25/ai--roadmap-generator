@@ -1,12 +1,15 @@
 const express = require("express");
-const Groq = require("groq-sdk");
+const Groq = require("groq-sdk"); // OpenRouter ke liye bhi hum Groq SDK use kar sakte hain
 const authMiddleware = require("../middleware/authMiddleware");
 const Roadmap = require("../models/Roadmap");
 
 const router = express.Router();
 
-// Groq SDK Initialize
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// 🌟 OpenRouter Configuration
+const groq = new Groq({ 
+  apiKey: process.env.OPENROUTER_API_KEY, // Yeh key .env aur Render se aayegi
+  baseURL: "https://openrouter.ai/api/v1"  // OpenRouter ka official server URL
+});
 
 // ==========================================
 // 1. GENERATE ROADMAP ROUTE
@@ -57,21 +60,21 @@ Progress must increase month by month and last phase must be 100.
 Keep explanations very brief.
 `;
 
-    vaScript
-    // 🌟 UPDATED GROQ MODEL: Llama 3.3 use kar rahe hain jo decommission nahi hoga
+    // 🌟 OpenRouter Free Llama Model Call
     const chatCompletion = await groq.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
-      model: "llama-3.3-70b-versatile", // 👈 Bas ye naam badal diya
+      model: "meta-llama/llama-3.1-8b-instruct:free", 
       response_format: { type: "json_object" }, 
       temperature: 0.2,
     });
+
     let roadmapText = chatCompletion.choices[0].message.content.trim();
 
     let parsedRoadmapData;
     try {
       parsedRoadmapData = JSON.parse(roadmapText);
     } catch (parseError) {
-      console.error("JSON Parsing Error from Groq Response:", roadmapText);
+      console.error("JSON Parsing Error from OpenRouter Response:", roadmapText);
       return res.status(500).json({
         success: false,
         message: "Failed to parse AI response into structural layout.",
