@@ -1,14 +1,14 @@
 const express = require("express");
-const { OpenAI } = require("openai"); // 🌟 Changed from groq-sdk to openai
+const { OpenAI } = require("openai"); // 🌟 OpenAI SDK use kar rahe hain OpenRouter ke liye
 const authMiddleware = require("../middleware/authMiddleware");
 const Roadmap = require("../models/Roadmap");
 
 const router = express.Router();
 
-// 🌟 OpenRouter Perfect Configuration using OpenAI SDK
+// 🌟 OpenRouter Configuration using OpenAI SDK
 const openai = new OpenAI({
-  apiKey: process.env.OPENROUTER_API_KEY,
-  baseURL: "https://openrouter.ai/api/v1", // No path crashing now!
+  apiKey: process.env.OPENROUTER_API_KEY, // Render aur .env se key uthayega
+  baseURL: "https://openrouter.ai/api/v1", // OpenRouter ka correct endpoint URL
 });
 
 // ==========================================
@@ -60,9 +60,9 @@ Progress must increase month by month and last phase must be 100.
 Keep explanations very brief.
 `;
 
-    // 🌟 OpenRouter Llama 3.1 Call
+    // 🌟 ACTIVE & FREE MODEL: Llama 3.3 70B Instruct Free
     const response = await openai.chat.completions.create({
-      model: "meta-llama/llama-3.1-8b-instruct:free", 
+      model: "meta-llama/llama-3.3-70b-instruct:free", 
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" }, 
       temperature: 0.2,
