@@ -17,12 +17,14 @@ router.post("/generate", authMiddleware, async (req, res) => {
     const { goal, level, duration } = req.body;
 
     // 🌟 FLASH MODEL WAPAS: Isme quota error nahi aayega, limit bohot high hai
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
-        responseMimeType: "application/json",
-        maxOutputTokens: 8192 // Full token limit allocation
-      }
-    });
+   // 🌟 Stable SDK production name mapping
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-flash", 
+  generationConfig: {
+    responseMimeType: "application/json",
+    maxOutputTokens: 8192 
+  }
+});
 
     const prompt = `
 You are an expert career mentor and roadmap planner.
