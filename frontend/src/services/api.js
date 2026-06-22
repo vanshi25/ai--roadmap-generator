@@ -1,12 +1,8 @@
-
-
-
-
-
 import axios from "axios";
 
+// 🌟 FIX: Agar .env me VITE_API_BASE_URL hai toh wo use hoga, nahi toh fallback to localhost
 const API = axios.create({
-  baseURL: "https://ai-roadmap-generator-kv91.onrender.com/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
 });
 
 API.interceptors.request.use((req) => {
