@@ -1,13 +1,12 @@
 const express = require("express");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 const authMiddleware = require("../middleware/authMiddleware");
 const Roadmap = require("../models/Roadmap");
 
 const router = express.Router();
 
-console.log("GEMINI KEY EXISTS:", !!process.env.GEMINI_API_KEY);
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Groq SDK Initialize
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // ==========================================
 // 1. GENERATE ROADMAP ROUTE
@@ -15,16 +14,6 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 router.post("/generate", authMiddleware, async (req, res) => {
   try {
     const { goal, level, duration } = req.body;
-
-    // 🌟 STABLE CONFIG: 1.5-flash standard string format for high quota & JSON support
-    // 🌟 Yeh model Gemini ka sabse stable 'v1beta' compliant model hai
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-pro", // Flash hata kar 'gemini-1.5-pro' kar do
-  generationConfig: {
-    responseMimeType: "application/json",
-    maxOutputTokens: 8192 
-  }
-});
 
     const prompt = `
 You are an expert career mentor and roadmap planner.
@@ -64,46 +53,38 @@ Return ONLY this JSON structure:
 
 Rules:
 Return ONLY valid raw JSON text. No markdown wraps, no backticks.
-If Duration = "1 Month" -> 1 phase.
-If Duration = "3 Months" -> 3 phases (months: 1,2,3).
-If Duration = "6 Months" -> 6 phases (months: 1,2,3,4,5,6).
-If Duration = "12 Months" -> 12 phases (months: 1 to 12).
 Progress must increase month by month and last phase must be 100.
-
-CRITICAL OPTIMIZATION FOR SIZE:
-Keep explanations and overview very brief. Keep topic names extremely short and punchy (max 3-5 words per topic). This ensures the full JSON fits perfectly within token limits without breaking or getting cut off.
-Add 3-5 high-quality entries for youtube, projects, interview prep, and checklist.
+Keep explanations very brief.
 `;
 
-    const result = await model.generateContent(prompt);
-    let roadmapText = result.response.text().trim();
+    // Groq API Call - Super fast & structural JSON mode
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: "llama3-8b-8192", 
+      response_format: { type: "json_object" }, 
+      temperature: 0.2,
+    });
 
-    // Cleaning fallbacks if any markdown formatting leaks in
-    roadmapText = roadmapText
-      .replace(/^```json\s*/i, "")
-      .replace(/```\s*$/, "")
-      .trim();
+    let roadmapText = chatCompletion.choices[0].message.content.trim();
 
     let parsedRoadmapData;
     try {
       parsedRoadmapData = JSON.parse(roadmapText);
     } catch (parseError) {
-      console.error("JSON Parsing Error from Gemini Response:", roadmapText);
+      console.error("JSON Parsing Error from Groq Response:", roadmapText);
       return res.status(500).json({
         success: false,
-        message: "Failed to parse AI response into structural layout. Please try again.",
+        message: "Failed to parse AI response into structural layout.",
       });
     }
 
-    // Convert the parsed object back into a string to satisfy Mongoose Schema requirement
-    const stringifiedData = JSON.stringify(parsedRoadmapData);
-
+    // Save to Database
     const savedRoadmap = await Roadmap.create({
       user: req.user.id,
       goal,
       level,
       duration,
-      roadmapText: stringifiedData
+      roadmapText: JSON.stringify(parsedRoadmapData)
     });
 
     res.status(201).json({
@@ -129,15 +110,9 @@ router.get("/my-roadmaps", authMiddleware, async (req, res) => {
       user: req.user.id,
     }).sort({ createdAt: -1 });
 
-    res.json({
-      success: true,
-      roadmaps,
-    });
+    res.json({ success: true, roadmaps });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
