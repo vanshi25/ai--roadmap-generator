@@ -62,8 +62,8 @@ Keep explanations very brief.
 
     // 🌟 SWITCHED TO THE FREE MODEL FROM YOUR SCREENSHOT
     const response = await openai.chat.completions.create({
-      model: "cohere/north-mini-code:free", // 👈 Screenshot wala free coding model
-      messages: [{ role: "user", content: prompt }],
+model: "openrouter/auto",   
+   messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" }, 
       temperature: 0.2,
     });
